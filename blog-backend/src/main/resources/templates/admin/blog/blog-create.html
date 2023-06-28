@@ -79,10 +79,10 @@
                   <div class="form-group">
                     <label>Trạng thái</label>
                     <select id="status" class="form-control">
-                      <option value="0">
+                      <option value="false">
                         Nháp
                       </option>
-                      <option value="1">
+                      <option value="true">
                         Công khai
                       </option>
                     </select>
@@ -91,26 +91,9 @@
                     <label>Danh mục</label>
                     <div class="select2-purple">
                       <select class="select2 form-control" multiple="multiple" id="category">
-                        <option>
-                          Java
-                        </option>
-                        <option>
-                          Golang
-                        </option>
-                        <option>
-                          React
-                        </option>
-                        <option>
-                          Lập trình web
-                        </option>
-                        <option>
-                          Database
-                        </option>
-                        <option>
-                          Tips Trick
-                        </option>
-                        <option>
-                          Devops
+                        <option th:each="category :${listCategory}"
+                        th:value="${category.id}"
+                        th:text="${category.name}">
                         </option>
                       </select>
                     </div>
@@ -145,6 +128,53 @@
         codeSyntaxHighlighting: true,
       },
     });
+    // tạo bài viết
+    const btnCreate=document.getElementById("btn-create");
+    const titleEl=document.getElementById("title");
+    const descriptionEL=document.getElementById("description");
+    const statusEl=document.getElementById("status");
+    const categoryEl=$("#category");
+
+    btnCreate.addEventListener("click",async () =>{
+
+      try{
+        // lấy dữ liệu
+        const title=titleEl.value;
+        const content=easyMDE.value();
+        const description=descriptionEL.value;
+        const status=statusEl.value;
+        const categoryIds=categoryEl.val();
+
+        const request={
+          title,
+          content,
+          description,
+          status:status== "true" ?true : false,
+          categoryIds:categoryIds.map(id => parseInt(id))
+        };
+        console.log(request);
+
+
+        //goi api
+        const dataJson= await fetch("/api/v1/admin/blogs",{
+          method:"POST",
+          headers:{
+           "Content-Type" : "application/json"
+          },
+          body:JSON.stringify(request)
+        })
+        const data=await dataJson.json();
+
+        toastr.success("tao bai viet thanh cong");
+
+        setTimeout(() =>{
+          window.location.href=data.url;
+        },1500)
+
+      }catch (err){
+        console.log(err);
+      }
+    })
   </script>
 </th:block>
 

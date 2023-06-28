@@ -66,5 +66,6 @@ import java.util.stream.Collectors;
     public List<CategoryPublic> getCategories() {
         return categoryRepository.findAll().stream().map(CategoryPublic::of).toList();
     }
+
 }
 

@@ -29,4 +29,6 @@ public interface BlogRepository extends JpaRepository<Blog, Integer> {
     List<BlogPublic> findByUser_IdOrderByCreatedAtDesc(Integer id);
 
     boolean existsBySlug(String slug);
+
+    BlogPublic findBlogsById(Integer id);
 }

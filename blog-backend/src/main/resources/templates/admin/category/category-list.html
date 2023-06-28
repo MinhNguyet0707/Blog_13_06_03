@@ -1,23 +1,206 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="https://www.thymeleaf.org"
+      th:replace="~{/layout/layout-admin :: main-fragment(~{:: title}, ~{:: #css},
+       ~{:: .content-wrapper}, ~{:: #javascript})}">
 <head>
-    <meta charset="UTF-8">
-    <title>Table</title>
+    <title>Danh mục</title>
+
 </head>
+
 <body>
-<table>
-    <thead>
-    <tr>
-        <th>ID</th>
-        <th>Name</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="category : ${categoryPage.content}">
-        <td th:text="${category.id}"></td>
-        <td th:text="${category.name}"></td>
-    </tr>
-    </tbody>
-</table>
+<div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-12">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                            <a href="#">Dashboard</a>
+                        </li>
+                        <li class="breadcrumb-item active">
+                            Tạo danh mục
+                        </li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main content -->
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row py-2">
+                <div class="col-12">
+                    <button type="button" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Viết bài
+                    </button>
+                    <button type="button" class="btn btn-info">
+                        <i class="fas fa-redo"></i> Refresh
+                    </button>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <table class="table table-bordered table-hover">
+                                <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Danh mục</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="category : ${categoryPage.content}">
+                                    <td th:text="${category.id}"></td>
+                                    <td th:text="${category.name}"></td>
+                                    <td>
+                                        <button class="btn btn-warning btn-edit" data-category-id="${category.id}" data-category-name="${category.name}">Sửa</button>
+                                        <button class="btn btn-danger btn-delete" data-category-id="${category.id}">Xóa</button>
+                                    </td>
+                                </tr>
+
+                                <tr id="newPostRow" style="display: none;">
+                                    <td></td>
+                                    <td></td>
+                                    <td>
+                                        <button class="btn btn-warning btn-edit" data-category-id="" data-category-name="">Sửa</button>
+                                        <button class="btn btn-danger btn-delete" data-category-id="">Xóa</button>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+
+                            <div class="d-flex justify-content-center mt-3" id="pagination">
+                                <ul class="pagination mb-0">
+                                    <li class="page-item previous" th:classappend="${currentPage == 1 ? 'disabled' : ''}">
+                                        <a class="page-link" th:href="@{/admin/categories?page=${currentPage - 1}}" aria-controls="example2" data-dt-idx="0" tabindex="0">Previous</a>
+                                    </li>
+                                    <th:block th:with="numbers=${T(com.example.blog.utils.Utils).createList(categoryPage.totalPages)}">
+                                        <li th:each="number : ${numbers}" class="page-item" th:classappend="${number == currentPage ? 'active' : ''}">
+                                            <a class="page-link" th:href="@{/admin/categories?page=${number}}" aria-controls="example2" data-dt-idx="1" tabindex="0" th:text="${number}"></a>
+                                        </li>
+                                    </th:block>
+                                    <li class="page-item next" th:classappend="${currentPage == categoryPage.totalPages ? 'disabled' : ''}">
+                                        <a class="page-link" th:href="@{/admin/categories?page=${currentPage + 1}}" aria-controls="example2" data-dt-idx="0" tabindex="0">Next</a>
+                                    </li>
+                                </ul>
+                            </div>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<th:block id="javascript">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/paginationjs/2.6.0/pagination.min.js" integrity="sha512-GzbaI5EsNzdEUq6/2XLYpr1y9CUZRIVsUeWTAFgULtQa5jZ3Nug8i0nZKM6jp9NffBCZhymPPQFcF0DK+JkRpw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const btnDeleteList = document.querySelectorAll(".btn-delete");
+// Lấy tất cả các nút "Sửa" trong tài liệu HTML
+            const editButtons = document.querySelectorAll('.btn-edit');
+
+// Duyệt qua từng nút "Sửa" và gán sự kiện click cho chúng
+            editButtons.forEach((button) => {
+                button.addEventListener('click', () => {
+                    const categoryId = button.dataset.categoryId; // Lấy giá trị id từ thuộc tính dữ liệu
+                    const categoryName = button.dataset.categoryName; // Lấy giá trị name từ thuộc tính dữ liệu
+
+                    const newName = window.prompt("Sửa tên danh mục", categoryName); // Hiển thị hộp thoại prompt và lấy tên mới
+
+                    if (newName !== null) {
+                        fetch(`/admin/categories/${categoryId}`, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                name: newName
+                            })
+                        })
+                            .then(response => response.json())
+                            .then(updatedCategory => {
+                                button.dataset.categoryName = updatedCategory.name;
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                            });
+                    }
+                });
+            });
+
+            btnDeleteList.forEach(function (btnDelete) {
+                btnDelete.addEventListener("click", function (event) {
+                    event.preventDefault();
+                    const categoryId = event.target.dataset.categoryId;
+
+                    if (confirm("Bạn có chắc chắn muốn xóa danh mục này?")) {
+                        fetch(`/admin/categories/${categoryId}`, {
+                            method: "DELETE"
+                        })
+                            .then(response => {
+                                if (response.ok) {
+                                    console.log("Category deleted successfully");
+                                } else {
+
+                                    console.error("Error deleting category");
+                                }
+                            })
+                            .catch(error => {
+                                console.error("Fetch error:", error);
+                            });
+                    }
+                });
+            });
+        });
+        document.querySelector('.btn-primary').addEventListener('click', () => {
+            const content = window.prompt("Nhập nội dung bài viết");
+
+            if (content) {
+                fetch('/admin/categories', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        content: content
+                    })
+                })
+                    .then(response => response.json())
+                    .then(createdCategory => {
+                        // Thêm dòng bài viết mới vào bảng
+                        const postTableBody = document.querySelector('tbody');
+                        const newPostRow = document.getElementById('newPostRow');
+                        const newRow = newPostRow.cloneNode(true);
+                        newRow.removeAttribute('id');
+                        newRow.querySelector('td:first-child').innerText = createdCategory.id;
+                        newRow.querySelector('td:nth-child(2)').innerText = createdCategory.name;
+                        newRow.querySelector('.btn-edit').dataset.categoryId = createdCategory.id;
+                        newRow.querySelector('.btn-edit').dataset.categoryName = createdCategory.name;
+                        newRow.querySelector('.btn-delete').dataset.categoryId = createdCategory.id;
+                        postTableBody.appendChild(newRow);
+
+                        // Hiển thị thông báo thành công
+                        alert('Bài viết đã được tạo thành công!');
+                    })
+                    .catch(error => {
+                        // Xử lý lỗi (nếu có)
+                        console.error('Error:', error);
+                        alert('Đã xảy ra lỗi khi tạo bài viết!');
+                    });
+            }
+        });
+
+
+    </script>
+</th:block>
 </body>
+
 </html>

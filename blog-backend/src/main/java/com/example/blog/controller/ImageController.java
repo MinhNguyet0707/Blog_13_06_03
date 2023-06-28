@@ -22,7 +22,6 @@ public class ImageController {
         List<Image> fileServerList = fileServerService.getFilesOfUser(id);
         return ResponseEntity.ok(fileServerList);
     }
-
     // tải ảnh
     @PostMapping("{id}/files")
     public ResponseEntity<?> uploadFile(@ModelAttribute("file") MultipartFile file,

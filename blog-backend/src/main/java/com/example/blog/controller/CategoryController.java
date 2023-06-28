@@ -12,8 +12,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-@RestController
-@RequestMapping("/api/v1/admin/categories")
+@Controller
+@RequestMapping("/admin/categories")
 public class CategoryController {
     @Autowired
     private CategoryService categoryService;
@@ -21,12 +21,13 @@ public class CategoryController {
     @GetMapping("")
     public String getCategoryPage(Model model,
                                   @RequestParam(required = false, defaultValue = "1") Integer page,
-                                  @RequestParam(required = false, defaultValue = "10") Integer pageSize) {
-        Page<CategoryPublic> categoryPage = categoryService.getAllCategories(page, pageSize);
+                                  @RequestParam(required = false, defaultValue = "5") Integer pageSize) {
+        Page<CategoryPublic> categoryPage = categoryService.getAllCategories(page , pageSize);
         model.addAttribute("categoryPage", categoryPage);
         model.addAttribute("currentPage", page);
         return "admin/category/category-list";
     }
+
 
     @PostMapping("")
     public ResponseEntity<CategoryPublic> createCategory(@RequestBody UpsertCategoryRequest request) {

@@ -1,18 +1,23 @@
 package com.example.blog.controller;
 
 import com.example.blog.dto.projection.BlogPublic;
+import com.example.blog.dto.projection.CategoryPublic;
+import com.example.blog.entity.Blog;
+import com.example.blog.entity.Category;
 import com.example.blog.request.UpsertBlogRequest;
 import com.example.blog.service.BlogService;
 import com.example.blog.service.CategoryService;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
-@RestController
+@Controller
 @AllArgsConstructor
 public class BlogController {
     private final BlogService blogService;
@@ -37,17 +42,21 @@ public class BlogController {
         return "admin/blog/own-blog";
     }
 
-
-
     // Chi tiết bài viết theo id
     @GetMapping("/admin/blogs/{id}/detail")
     public String getBlogDetailPage(@PathVariable Integer id, Model model) {
+
+        BlogPublic blog=blogService.getBlogById(id);
+        List<CategoryPublic> listCategory=categoryService.getCategories();
+        model.addAttribute("blog",blog);
+        model.addAttribute("listCategory", listCategory);
         return "admin/blog/blog-detail";
     }
     // Tạo bài viết
     @GetMapping("/admin/blogs/create")
     public String getBlogCreatePage(Model model) {
-        model.addAttribute("categories", categoryService.getCategories());
+      List<CategoryPublic> listCategory=categoryService.getCategories();
+        model.addAttribute("listCategory", listCategory);
         return "admin/blog/blog-create";
     }
     //thêm blog mới
@@ -59,7 +68,6 @@ public class BlogController {
   // Cập nhât blog
   @PutMapping("/api/v1/admin/blogs/{id}")
   public ResponseEntity<?> updateBlog(@PathVariable Integer id, @RequestBody UpsertBlogRequest upsertBlogRequest) {
-
       return ResponseEntity.ok(blogService.updateBlog(id, upsertBlogRequest));
   }
 

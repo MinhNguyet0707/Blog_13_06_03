@@ -19,8 +19,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -95,6 +95,11 @@ public class BlogService {
         Blog blogDe = blogRepository.findById(id).orElseThrow(() -> new NotFoundException("Not found blog"));
         blogRepository.deleteById(id);
         return "Successful delete";
+    }
+
+    public BlogPublic getBlogById(Integer id) {
+        Blog blogOptional= blogRepository.findById(id).orElse(null);
+        return BlogPublic.of(blogOptional);
     }
 }
 
